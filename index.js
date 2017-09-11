@@ -3,6 +3,7 @@ var documentReady = require('document-ready')
 var nanolocation = require('nanolocation')
 var nanotiming = require('nanotiming')
 var nanorouter = require('nanorouter')
+var mutate = require('xtend/mutable')
 var nanomorph = require('nanomorph')
 var nanoquery = require('nanoquery')
 var nanohref = require('nanohref')
@@ -45,7 +46,11 @@ function Choo (opts) {
   // properties that are part of the API
   this.router = nanorouter({ curry: true })
   this.emitter = nanobus('choo.emit')
-  this.state = { events: this._events }
+  this.state = this.hasWindow
+    ? { events: this._events }
+    : window.initialState
+      ? mutate(window.initialState, { events: this._events })
+      : { events: this._events }
 
   // listen for title changes; available even when calling .toString()
   if (this._hasWindow) this.state.title = document.title
